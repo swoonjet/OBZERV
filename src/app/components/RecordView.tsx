@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Square, MapPin, Loader2, AlertCircle } from 'lucide-react';
+import { Mic, Square, MapPin, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { getCurrentLocation } from '../utils/location';
@@ -177,7 +177,7 @@ export function RecordView() {
             ) : isListening ? (
               <Square className="w-12 h-12 text-white" fill="white" />
             ) : (
-              <img src={obzervLogo} alt="Record" className="w-14 h-14 invert" />
+              <Mic className="w-12 h-12 text-white" />
             )}
 
             {isListening && (
