@@ -5,8 +5,8 @@ import { ObservationsView } from './components/ObservationsView';
 import { ObservationDetailView } from './components/ObservationDetailView';
 import { PatternsView } from './components/PatternsView';
 
-// Use /OBZERV base on GitHub Pages (production), root locally
-const basename = import.meta.env.PROD ? '/OBZERV' : '/';
+// Match Vite's base path in both dev and prod
+const basename = '/OBZERV';
 
 export const router = createBrowserRouter(
   [
