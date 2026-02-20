@@ -54,7 +54,10 @@ export const storage = {
       address: observation.location?.address ?? null,
     })
 
-    if (error) console.error('Error saving observation:', error)
+    if (error) {
+      console.error('Error saving observation:', error)
+      throw error
+    }
   },
 
   updateObservation: async (id: string, updates: Partial<Observation>): Promise<void> => {
