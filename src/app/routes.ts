@@ -6,7 +6,7 @@ import { ObservationDetailView } from './components/ObservationDetailView';
 import { PatternsView } from './components/PatternsView';
 
 // Match Vite's base path in both dev and prod
-const basename = '/obzerv';
+const basename = '/OBZERV';
 
 export const router = createBrowserRouter(
   [
