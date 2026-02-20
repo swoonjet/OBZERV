@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Mic, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'sonner'
+import obzervLogo from '../../assets/logo.svg'
 
 export function AuthView() {
   const { signIn, signUp } = useAuth()
@@ -37,10 +38,8 @@ export function AuthView() {
       >
         {/* Logo */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-black mb-4">
-            <Mic className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="text-2xl font-light tracking-wide">OBZERV</h1>
+          <img src={obzervLogo} alt="OBZERV" className="w-16 h-16 mx-auto mb-3" />
+          <h1 className="text-2xl font-light tracking-widest uppercase">OBZERV</h1>
           <p className="text-sm text-gray-500 mt-1">Notice. Record. Reflect.</p>
         </div>
 

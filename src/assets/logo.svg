@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <!-- Eye outline -->
+  <path d="M512 280 C300 280 120 512 120 512 C120 512 300 744 512 744 C724 744 904 512 904 512 C904 512 724 280 512 280 Z" stroke="black" stroke-width="28" fill="none" stroke-linejoin="round"/>
+  <!-- Horizontal line through eye -->
+  <line x1="120" y1="512" x2="904" y2="512" stroke="black" stroke-width="28"/>
+  <!-- Circle (iris) -->
+  <circle cx="512" cy="512" r="160" stroke="black" stroke-width="28" fill="none"/>
+  <!-- Waveform inside circle -->
+  <path d="M352 512 C380 512 390 512 400 512 C415 512 420 420 440 420 C460 420 465 600 485 600 C500 600 505 430 520 430 C535 430 540 580 555 580 C570 580 575 512 590 512 C605 512 615 512 672 512" stroke="black" stroke-width="28" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

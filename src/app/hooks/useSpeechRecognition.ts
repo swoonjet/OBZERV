@@ -35,6 +35,7 @@ export const useSpeechRecognition = () => {
 
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const startTimeRef = useRef<number>(0);
+  const transcriptRef = useRef<string>('');
 
   useEffect(() => {
     const SpeechRecognition =
@@ -66,7 +67,11 @@ export const useSpeechRecognition = () => {
       }
 
       if (final) {
-        setTranscript((prev) => prev + final);
+        setTranscript((prev) => {
+          const next = prev + final;
+          transcriptRef.current = next;
+          return next;
+        });
       }
       setInterimTranscript(interim);
     });
@@ -99,6 +104,7 @@ export const useSpeechRecognition = () => {
   const startListening = () => {
     if (recognitionRef.current && !isListening) {
       setTranscript('');
+      transcriptRef.current = '';
       setInterimTranscript('');
       setError(null);
       
@@ -132,6 +138,8 @@ export const useSpeechRecognition = () => {
     return Math.floor((Date.now() - startTimeRef.current) / 1000);
   };
 
+  const getFinalTranscript = () => transcriptRef.current;
+
   return {
     isListening,
     transcript,
@@ -141,5 +149,6 @@ export const useSpeechRecognition = () => {
     startListening,
     stopListening,
     getDuration,
+    getFinalTranscript,
   };
 };

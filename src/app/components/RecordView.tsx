@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Mic, Square, MapPin, Loader2, AlertCircle } from 'lucide-react';
+import { Square, MapPin, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { getCurrentLocation } from '../utils/location';
@@ -8,6 +8,7 @@ import { storage } from '../utils/storage';
 import { extractTags } from '../utils/analysis';
 import { Location } from '../types/observation';
 import { toast } from 'sonner';
+import obzervLogo from '../../assets/logo.svg';
 
 export function RecordView() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export function RecordView() {
     startListening,
     stopListening,
     getDuration,
+    getFinalTranscript,
   } = useSpeechRecognition();
 
   const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
@@ -43,11 +45,10 @@ export function RecordView() {
   useEffect(() => {
     if (error) {
       if (error === 'not-allowed') {
-        // Check if it's an HTTPS issue
         if (!window.isSecureContext && window.location.protocol !== 'http:') {
           toast.error('Voice recording requires HTTPS. Please use a secure connection.');
         } else {
-          toast.error('Microphone access denied. Please click the microphone icon in your browser address bar to allow access.');
+          toast.error('Microphone access denied. Please allow access in your browser.');
         }
       } else if (error === 'microphone-error') {
         toast.error('Could not access microphone. Please check your device settings.');
@@ -62,8 +63,7 @@ export function RecordView() {
     try {
       const location = await getCurrentLocation();
       setCurrentLocation(location);
-    } catch (error) {
-      console.log('Location not available:', error);
+    } catch {
       setCurrentLocation(null);
     } finally {
       setLocationLoading(false);
@@ -72,25 +72,33 @@ export function RecordView() {
   };
 
   const handleStopRecording = async () => {
+    const duration = getDuration();
+    // Capture via ref before stopListening clears state
+    const finalText = getFinalTranscript().trim();
     stopListening();
 
-    if (transcript.trim()) {
+    if (finalText) {
       const observation = {
-        id: Date.now().toString(),
-        transcript: transcript.trim(),
+        id: crypto.randomUUID(),
+        transcript: finalText,
         location: currentLocation || undefined,
         timestamp: Date.now(),
-        tags: extractTags(transcript),
-        duration: getDuration(),
+        tags: extractTags(finalText),
+        duration,
       };
 
-      await storage.saveObservation(observation);
-      toast.success('Observation saved');
-      
-      // Navigate to the new observation
-      setTimeout(() => {
-        navigate(`/observation/${observation.id}`);
-      }, 300);
+      try {
+        await storage.saveObservation(observation);
+        toast.success('Observation saved');
+        setTimeout(() => {
+          navigate(`/observation/${observation.id}`);
+        }, 300);
+      } catch (err) {
+        console.error('Save error:', err);
+        toast.error('Failed to save. Please try again.');
+      }
+    } else {
+      toast.error('Nothing recorded — try again');
     }
   };
 
@@ -105,12 +113,8 @@ export function RecordView() {
       <div className="flex items-center justify-center h-screen px-6 text-center">
         <div>
           <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">
-            Speech recognition is not supported in your browser.
-          </p>
-          <p className="text-sm text-gray-500 mt-2">
-            Please try Chrome, Safari, or Edge.
-          </p>
+          <p className="text-gray-600">Speech recognition is not supported in your browser.</p>
+          <p className="text-sm text-gray-500 mt-2">Please try Chrome, Safari, or Edge.</p>
         </div>
       </div>
     );
@@ -119,19 +123,18 @@ export function RecordView() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-6 pb-24">
       <div className="w-full max-w-md">
-        {/* Logo/Title */}
+        {/* Logo / Title */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-2xl font-light tracking-wide mb-2">Observer</h1>
-          <p className="text-sm text-gray-500">
-            Notice. Record. Reflect.
-          </p>
+          <img src={obzervLogo} alt="OBZERV" className="w-16 h-16 mx-auto mb-3" />
+          <h1 className="text-2xl font-light tracking-widest uppercase mb-1">OBZERV</h1>
+          <p className="text-sm text-gray-500">Notice. Record. Reflect.</p>
         </motion.div>
 
-        {/* Permission Error Message */}
+        {/* Microphone Permission Error */}
         {error === 'not-allowed' && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -141,11 +144,9 @@ export function RecordView() {
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-red-900 mb-1">
-                  Microphone Access Required
-                </p>
+                <p className="text-sm font-medium text-red-900 mb-1">Microphone Access Required</p>
                 <p className="text-xs text-red-700 mb-2">
-                  Click the microphone/camera icon in your browser's address bar and select "Allow" for microphone access.
+                  Click the microphone icon in your browser's address bar and select "Allow".
                 </p>
                 <button
                   onClick={() => window.location.reload()}
@@ -158,7 +159,7 @@ export function RecordView() {
           </motion.div>
         )}
 
-        {/* Recording Button */}
+        {/* Record Button */}
         <div className="flex flex-col items-center space-y-8">
           <motion.button
             onClick={isListening ? handleStopRecording : handleStartRecording}
@@ -176,10 +177,9 @@ export function RecordView() {
             ) : isListening ? (
               <Square className="w-12 h-12 text-white" fill="white" />
             ) : (
-              <Mic className="w-12 h-12 text-white" />
+              <img src={obzervLogo} alt="Record" className="w-14 h-14 invert" />
             )}
 
-            {/* Pulse animation while recording */}
             {isListening && (
               <motion.div
                 className="absolute inset-0 rounded-full bg-red-500"
@@ -190,7 +190,7 @@ export function RecordView() {
             )}
           </motion.button>
 
-          {/* Recording Time */}
+          {/* Timer */}
           <AnimatePresence>
             {isListening && (
               <motion.div
@@ -204,7 +204,7 @@ export function RecordView() {
             )}
           </AnimatePresence>
 
-          {/* Location Indicator */}
+          {/* Location */}
           {currentLocation && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -218,7 +218,7 @@ export function RecordView() {
             </motion.div>
           )}
 
-          {/* Transcript Display */}
+          {/* Live transcript */}
           <AnimatePresence>
             {(transcript || interimTranscript) && (
               <motion.div
@@ -237,7 +237,6 @@ export function RecordView() {
             )}
           </AnimatePresence>
 
-          {/* Instructions */}
           {!isListening && !transcript && (
             <motion.p
               initial={{ opacity: 0 }}
