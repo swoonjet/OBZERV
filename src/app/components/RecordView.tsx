@@ -71,7 +71,7 @@ export function RecordView() {
     startListening();
   };
 
-  const handleStopRecording = () => {
+  const handleStopRecording = async () => {
     stopListening();
 
     if (transcript.trim()) {
@@ -84,7 +84,7 @@ export function RecordView() {
         duration: getDuration(),
       };
 
-      storage.saveObservation(observation);
+      await storage.saveObservation(observation);
       toast.success('Observation saved');
       
       // Navigate to the new observation

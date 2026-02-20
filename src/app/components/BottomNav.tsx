@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router';
-import { Mic, List, TrendingUp } from 'lucide-react';
+import { Mic, List, TrendingUp, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export function BottomNav() {
   const location = useLocation();
+  const { signOut } = useAuth();
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -49,6 +51,14 @@ export function BottomNav() {
           <TrendingUp className="w-6 h-6" />
           <span className="text-xs mt-1">Patterns</span>
         </Link>
+
+        <button
+          onClick={signOut}
+          className="flex flex-col items-center justify-center flex-1 h-full transition-colors text-gray-400 hover:text-gray-600"
+        >
+          <LogOut className="w-6 h-6" />
+          <span className="text-xs mt-1">Sign Out</span>
+        </button>
       </div>
     </nav>
   );

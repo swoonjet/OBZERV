@@ -22,15 +22,16 @@ export function ObservationDetailView() {
 
   useEffect(() => {
     if (id) {
-      const observations = storage.getObservations();
-      const found = observations.find((o) => o.id === id);
-      setObservation(found || null);
+      storage.getObservations().then((observations) => {
+        const found = observations.find((o) => o.id === id);
+        setObservation(found || null);
+      });
     }
   }, [id]);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (observation && confirm('Delete this observation?')) {
-      storage.deleteObservation(observation.id);
+      await storage.deleteObservation(observation.id);
       toast.success('Observation deleted');
       navigate('/observations');
     }

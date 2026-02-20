@@ -14,8 +14,8 @@ export function ObservationsView() {
     loadObservations();
   }, []);
 
-  const loadObservations = () => {
-    const data = storage.getObservations();
+  const loadObservations = async () => {
+    const data = await storage.getObservations();
     setObservations(data);
   };
 

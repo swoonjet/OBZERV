@@ -9,9 +9,10 @@ export function PatternsView() {
   const [analysis, setAnalysis] = useState<PatternAnalysis | null>(null);
 
   useEffect(() => {
-    const observations = storage.getObservations();
-    const patterns = analyzeObservations(observations);
-    setAnalysis(patterns);
+    storage.getObservations().then((observations) => {
+      const patterns = analyzeObservations(observations);
+      setAnalysis(patterns);
+    });
   }, []);
 
   if (!analysis) {
