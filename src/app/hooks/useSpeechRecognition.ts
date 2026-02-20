@@ -36,6 +36,7 @@ export const useSpeechRecognition = () => {
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const startTimeRef = useRef<number>(0);
   const transcriptRef = useRef<string>('');
+  const interimRef = useRef<string>('');
 
   useEffect(() => {
     const SpeechRecognition =
@@ -73,6 +74,7 @@ export const useSpeechRecognition = () => {
           return next;
         });
       }
+      interimRef.current = interim;
       setInterimTranscript(interim);
     });
 
@@ -105,6 +107,7 @@ export const useSpeechRecognition = () => {
     if (recognitionRef.current && !isListening) {
       setTranscript('');
       transcriptRef.current = '';
+      interimRef.current = '';
       setInterimTranscript('');
       setError(null);
       
@@ -138,7 +141,9 @@ export const useSpeechRecognition = () => {
     return Math.floor((Date.now() - startTimeRef.current) / 1000);
   };
 
-  const getFinalTranscript = () => transcriptRef.current;
+  // Combine finalized text + any pending interim text at stop time
+  const getFinalTranscript = () =>
+    (transcriptRef.current + ' ' + interimRef.current).trim();
 
   return {
     isListening,
