@@ -1,24 +1,82 @@
-import { useState, useEffect } from 'react';
-import { TrendingUp, MapPin, Tag, Clock, BarChart3 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { storage } from '../utils/storage';
 import { analyzeObservations } from '../utils/analysis';
 import { PatternAnalysis } from '../types/observation';
 
+// Seeded pseudo-random for stable positions across renders
+function seededRandom(seed: number) {
+  const x = Math.sin(seed + 1) * 10000;
+  return x - Math.floor(x);
+}
+
+interface WordNode {
+  tag: string;
+  count: number;
+  size: number;       // font size in px
+  opacity: number;
+  x: number;          // % from left
+  y: number;          // % from top
+  delay: number;
+  duration: number;   // breath cycle duration
+}
+
+function buildWordNodes(topTags: PatternAnalysis['topTags']): WordNode[] {
+  if (topTags.length === 0) return [];
+  const maxCount = topTags[0].count;
+
+  return topTags.slice(0, 20).map((item, i) => {
+    const ratio = item.count / maxCount;
+    const size = 13 + ratio * 36; // 13px–49px
+    const opacity = 0.25 + ratio * 0.75; // 0.25–1.0
+
+    // Distribute across canvas avoiding centre dead zone
+    const angle = (i / topTags.length) * Math.PI * 2;
+    const spread = 0.28 + seededRandom(i * 3) * 0.2;
+    const cx = 50 + Math.cos(angle) * spread * 80;
+    const cy = 50 + Math.sin(angle) * spread * 55;
+
+    // Clamp within safe margins
+    const x = Math.min(Math.max(cx, 6), 92);
+    const y = Math.min(Math.max(cy, 8), 88);
+
+    return {
+      tag: item.tag,
+      count: item.count,
+      size,
+      opacity,
+      x,
+      y,
+      delay: seededRandom(i * 7) * 3,
+      duration: 3 + seededRandom(i * 11) * 4, // 3s–7s
+    };
+  });
+}
+
 export function PatternsView() {
   const [analysis, setAnalysis] = useState<PatternAnalysis | null>(null);
+  const [words, setWords] = useState<WordNode[]>([]);
+  const [activeWord, setActiveWord] = useState<WordNode | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     storage.getObservations().then((observations) => {
       const patterns = analyzeObservations(observations);
       setAnalysis(patterns);
+      setWords(buildWordNodes(patterns.topTags));
     });
   }, []);
 
   if (!analysis) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Loading patterns...</p>
+        <motion.div
+          animate={{ opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="text-sm text-gray-400 tracking-widest uppercase"
+        >
+          Reading patterns...
+        </motion.div>
       </div>
     );
   }
@@ -26,167 +84,129 @@ export function PatternsView() {
   if (analysis.totalObservations === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen px-6 text-center">
-        <BarChart3 className="w-16 h-16 text-gray-300 mb-4" />
-        <p className="text-gray-600 mb-2">No patterns yet</p>
-        <p className="text-sm text-gray-500">
-          Record more observations to see patterns and insights
-        </p>
+        <motion.p
+          animate={{ opacity: [0.4, 0.8, 0.4] }}
+          transition={{ duration: 3, repeat: Infinity }}
+          className="text-gray-400 text-sm tracking-wide"
+        >
+          Record observations to surface patterns
+        </motion.p>
       </div>
     );
   }
 
-  const maxHourCount = Math.max(
-    ...analysis.timeDistribution.map((t) => t.count),
-    1
-  );
-
   return (
-    <div className="min-h-screen pb-24 px-4 pt-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
+    <div className="relative min-h-screen pb-24 overflow-hidden bg-white select-none">
+
+      {/* Ambient stats — quiet, top corners */}
+      <div className="absolute top-5 left-5 z-10">
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="text-left"
         >
-          <h1 className="text-2xl font-light mb-2">Patterns & Insights</h1>
-          <p className="text-sm text-gray-500">
-            Discover patterns in your observations
-          </p>
+          <p className="text-[10px] uppercase tracking-widest text-gray-400">Observations</p>
+          <p className="text-3xl font-light text-gray-800">{analysis.totalObservations}</p>
         </motion.div>
-
-        {/* Stats Overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 gap-4 mb-6"
-        >
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-gray-600 mb-1">
-              <TrendingUp className="w-4 h-4" />
-              <span className="text-xs">Total</span>
-            </div>
-            <p className="text-2xl font-light">{analysis.totalObservations}</p>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-gray-600 mb-1">
-              <BarChart3 className="w-4 h-4" />
-              <span className="text-xs">Per Day</span>
-            </div>
-            <p className="text-2xl font-light">{analysis.averagePerDay}</p>
-          </div>
-        </motion.div>
-
-        {/* Top Tags */}
-        {analysis.topTags.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white border border-gray-200 rounded-lg p-5 mb-4"
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <Tag className="w-5 h-5 text-gray-700" />
-              <h2 className="font-medium text-gray-800">Common Themes</h2>
-            </div>
-            <div className="space-y-3">
-              {analysis.topTags.slice(0, 5).map((item, index) => (
-                <div key={item.tag}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-gray-700">{item.tag}</span>
-                    <span className="text-xs text-gray-500">
-                      {item.count} {item.count === 1 ? 'time' : 'times'}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{
-                        width: `${(item.count / analysis.topTags[0].count) * 100}%`,
-                      }}
-                      transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
-                      className="bg-black h-2 rounded-full"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Top Locations */}
-        {analysis.topLocations.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white border border-gray-200 rounded-lg p-5 mb-4"
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <MapPin className="w-5 h-5 text-gray-700" />
-              <h2 className="font-medium text-gray-800">Frequent Locations</h2>
-            </div>
-            <div className="space-y-2">
-              {analysis.topLocations.slice(0, 5).map((item) => (
-                <div
-                  key={item.location}
-                  className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
-                >
-                  <span className="text-sm text-gray-700 truncate flex-1">
-                    {item.location}
-                  </span>
-                  <span className="text-sm font-medium text-gray-900 ml-2">
-                    {item.count}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Time Distribution */}
-        {analysis.timeDistribution.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white border border-gray-200 rounded-lg p-5"
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-5 h-5 text-gray-700" />
-              <h2 className="font-medium text-gray-800">Time of Day</h2>
-            </div>
-            <div className="flex items-end justify-between gap-1 h-32">
-              {Array.from({ length: 24 }).map((_, hour) => {
-                const data = analysis.timeDistribution.find((t) => t.hour === hour);
-                const count = data?.count || 0;
-                const height = (count / maxHourCount) * 100;
-
-                return (
-                  <div key={hour} className="flex-1 flex flex-col items-center">
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: `${height}%` }}
-                      transition={{ delay: 0.5 + hour * 0.02, duration: 0.3 }}
-                      className="w-full bg-black rounded-t-sm min-h-[2px]"
-                      style={{ height: count === 0 ? '2px' : undefined }}
-                    />
-                    {hour % 6 === 0 && (
-                      <span className="text-[10px] text-gray-400 mt-1">
-                        {hour}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <p className="text-xs text-gray-500 text-center mt-2">
-              Hour of day (0-23)
-            </p>
-          </motion.div>
-        )}
       </div>
+
+      <div className="absolute top-5 right-5 z-10">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="text-right"
+        >
+          <p className="text-[10px] uppercase tracking-widest text-gray-400">Per Day</p>
+          <p className="text-3xl font-light text-gray-800">{analysis.averagePerDay}</p>
+        </motion.div>
+      </div>
+
+      {/* Word cloud canvas */}
+      <div
+        ref={containerRef}
+        className="absolute inset-0 bottom-24"
+      >
+        {words.map((word, i) => (
+          <motion.button
+            key={word.tag}
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 font-light tracking-wide cursor-pointer"
+            style={{
+              left: `${word.x}%`,
+              top: `${word.y}%`,
+              fontSize: `${word.size}px`,
+              color: `rgba(0,0,0,${word.opacity})`,
+            }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{
+              opacity: [word.opacity * 0.7, word.opacity, word.opacity * 0.7],
+              scale: [0.97, 1.03, 0.97],
+            }}
+            transition={{
+              opacity: {
+                duration: word.duration,
+                repeat: Infinity,
+                delay: word.delay,
+                ease: 'easeInOut',
+              },
+              scale: {
+                duration: word.duration,
+                repeat: Infinity,
+                delay: word.delay,
+                ease: 'easeInOut',
+              },
+              // entry animation
+              default: { delay: i * 0.08, duration: 0.6 },
+            }}
+            whileHover={{ scale: 1.15, opacity: 1 }}
+            onHoverStart={() => setActiveWord(word)}
+            onHoverEnd={() => setActiveWord(null)}
+            onClick={() => setActiveWord(activeWord?.tag === word.tag ? null : word)}
+          >
+            {word.tag}
+          </motion.button>
+        ))}
+      </div>
+
+      {/* Active word detail — floats at bottom centre */}
+      {activeWord && (
+        <motion.div
+          key={activeWord.tag}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          className="absolute bottom-28 left-0 right-0 flex justify-center z-20 pointer-events-none"
+        >
+          <div className="bg-black text-white px-4 py-2 rounded-full text-sm">
+            <span className="font-medium">{activeWord.tag}</span>
+            <span className="ml-2 opacity-60 text-xs">
+              {activeWord.count} {activeWord.count === 1 ? 'time' : 'times'}
+            </span>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Location strip — whisper quiet at bottom */}
+      {analysis.topLocations.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2 }}
+          className="absolute bottom-24 left-0 right-0 px-6 pb-2 z-10"
+        >
+          <p className="text-[10px] uppercase tracking-widest text-gray-300 mb-1 text-center">
+            Where you observe
+          </p>
+          <div className="flex justify-center flex-wrap gap-x-4 gap-y-1">
+            {analysis.topLocations.slice(0, 3).map((loc) => (
+              <span key={loc.location} className="text-xs text-gray-400 truncate max-w-[140px]">
+                {loc.location}
+              </span>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

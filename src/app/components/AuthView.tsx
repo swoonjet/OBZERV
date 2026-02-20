@@ -38,7 +38,7 @@ export function AuthView() {
       >
         {/* Logo */}
         <div className="text-center mb-10">
-          <img src={obzervLogo} alt="OBZERV" className="w-16 h-16 mx-auto mb-3" />
+          <img src={obzervLogo} alt="OBZERV" className="w-28 h-28 mx-auto mb-3" />
           <h1 className="text-2xl font-light tracking-widest uppercase">OBZERV</h1>
           <p className="text-sm text-gray-500 mt-1">Notice. Record. Reflect.</p>
         </div>
