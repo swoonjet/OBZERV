@@ -9,6 +9,7 @@ import { extractTags } from '../utils/analysis';
 import { Location } from '../types/observation';
 import { toast } from 'sonner';
 import obzervLogo from '../../assets/logo.svg';
+import { TruchetBackground } from './TruchetBackground';
 
 export function RecordView() {
   const navigate = useNavigate();
@@ -121,8 +122,9 @@ export function RecordView() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 pb-24">
-      <div className="w-full max-w-md">
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-6 pb-24">
+      <TruchetBackground />
+      <div className="relative z-10 w-full max-w-md">
         {/* Logo / Title */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

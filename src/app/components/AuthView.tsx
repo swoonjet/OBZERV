@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { toast } from 'sonner'
 import obzervLogo from '../../assets/logo.svg'
+import { TruchetBackground } from './TruchetBackground'
 
 export function AuthView() {
   const { signIn, signUp } = useAuth()
@@ -30,11 +31,12 @@ export function AuthView() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 bg-white">
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-6 bg-white">
+      <TruchetBackground />
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm"
+        className="relative z-10 w-full max-w-sm"
       >
         {/* Logo */}
         <div className="text-center mb-10">
