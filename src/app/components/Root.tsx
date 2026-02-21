@@ -37,7 +37,7 @@ export function Root() {
     if (user && handle && follow) {
       navigate(`/subscribe?h=${follow}`, { replace: true });
     }
-  }, [user, handle]);
+  }, [user, handle, searchParams]);
 
   const showSpinner = loading || (!!user && profileLoading);
 

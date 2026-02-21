@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router'
 import { motion } from 'motion/react'
-import { Loader2, CheckCircle } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { toast } from 'sonner'
 import obzervLogo from '../../assets/logo.svg'
@@ -16,7 +16,6 @@ export function SubscribePage() {
 
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -42,8 +41,11 @@ export function SubscribePage() {
     setLoading(false)
 
     if (res.ok) {
-      setDone(true)
-      setTimeout(() => navigate('/stream'), 1800)
+      // Navigate home immediately — belt-and-suspenders with location.href fallback for PWA
+      navigate('/', { replace: true })
+      setTimeout(() => {
+        window.location.href = window.location.origin + import.meta.env.BASE_URL
+      }, 400)
     } else {
       toast.error(data.error ?? 'Could not follow')
     }
@@ -69,14 +71,7 @@ export function SubscribePage() {
       >
         <img src={obzervLogo} alt="OBZERV" className="w-16 h-16 mx-auto mb-6 opacity-80" />
 
-        {done ? (
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-            <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-            <p className="text-xl font-light text-gray-900">Following @{handle}</p>
-            <p className="text-sm text-gray-400 mt-2">Opening your stream…</p>
-          </motion.div>
-        ) : (
-          <>
+        <>
             <p className="text-xs tracking-widest uppercase text-gray-400 mb-2">Invite</p>
             <h1 className="text-2xl font-light text-gray-900 mb-1">
               Follow <span className="font-normal">@{handle}</span>
@@ -115,8 +110,7 @@ export function SubscribePage() {
                 </button>
               </div>
             )}
-          </>
-        )}
+        </>
       </motion.div>
     </div>
   )
