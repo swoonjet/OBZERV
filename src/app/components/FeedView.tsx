@@ -48,7 +48,7 @@ export function FeedView() {
   }, [userId])
 
   return (
-    <div className="min-h-screen bg-[#faf9f7] px-5 pt-10 pb-16 max-w-lg mx-auto">
+    <div className="min-h-dvh bg-[#faf9f7] px-5 pt-10 pb-16 max-w-lg mx-auto">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}

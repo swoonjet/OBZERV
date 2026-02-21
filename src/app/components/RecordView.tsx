@@ -122,7 +122,7 @@ export function RecordView() {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen px-6 pb-24">
+    <div className="relative flex flex-col items-center justify-center min-h-dvh px-6" style={{ paddingBottom: "var(--content-pb)" }}>
       <TruchetBackground />
       <div className="relative z-10 w-full max-w-md">
         {/* Logo / Title */}

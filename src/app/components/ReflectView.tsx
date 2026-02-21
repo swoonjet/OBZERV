@@ -377,7 +377,7 @@ export function ReflectView() {
   const loading = loadState === 'loading'
 
   return (
-    <div className="min-h-screen pb-24 bg-white overflow-hidden">
+    <div className="min-h-dvh bg-white overflow-hidden" style={{ paddingBottom: "var(--content-pb)" }}>
 
       {/* ── Breathing form section ── */}
       <div className="relative flex flex-col items-center pt-10 pb-6 px-6">

@@ -64,7 +64,7 @@ export function ObservationsView() {
   });
 
   return (
-    <div className="min-h-screen pb-24 px-4 pt-6">
+    <div className="min-h-dvh px-4 pt-6" style={{ paddingBottom: "var(--content-pb)" }}>
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <motion.div

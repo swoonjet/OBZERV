@@ -124,8 +124,27 @@
     @apply border-border outline-ring/50;
   }
 
+  /* ─── iOS / PWA safe area & viewport fixes ─────────────────────────────── */
+
+  /* Use the full dynamic viewport height so the app fills the screen
+     correctly in both Safari and standalone (Add to Home Screen) mode.
+     dvh collapses when the browser chrome hides; svh stays constant. */
+  :root {
+    --nav-height: 4rem;          /* 64px — matches h-16 on BottomNav */
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    /* Total space to clear below content so it isn't hidden behind nav + home indicator */
+    --content-pb: calc(var(--nav-height) + var(--safe-bottom) + 0.5rem);
+  }
+
+  html, body, #root {
+    /* Fill the true visual viewport (shrinks when browser chrome appears) */
+    min-height: 100dvh;
+  }
+
   body {
     @apply bg-background text-foreground;
+    /* Prevent iOS overscroll bounce from revealing gaps above/below */
+    overscroll-behavior-y: none;
   }
 
   /**

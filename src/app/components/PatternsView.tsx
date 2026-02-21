@@ -97,7 +97,7 @@ export function PatternsView() {
 
   if (!analysis) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-dvh">
         <motion.div
           animate={{ opacity: [0.3, 0.7, 0.3] }}
           transition={{ duration: 2, repeat: Infinity }}
@@ -111,7 +111,7 @@ export function PatternsView() {
 
   if (analysis.totalObservations === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-6 text-center">
+      <div className="flex flex-col items-center justify-center min-h-dvh px-6 text-center">
         <motion.p
           animate={{ opacity: [0.4, 0.8, 0.4] }}
           transition={{ duration: 3, repeat: Infinity }}
@@ -126,7 +126,7 @@ export function PatternsView() {
   const px = (val: number, dim: number) => val * dim;
 
   return (
-    <div className="relative min-h-screen pb-24 bg-white overflow-hidden">
+    <div className="relative min-h-dvh bg-white overflow-hidden" style={{ paddingBottom: "var(--content-pb)" }}>
 
       {/* Quiet stats */}
       <div className="absolute top-5 left-5 z-10 pointer-events-none">

@@ -200,14 +200,14 @@ export function ObservationDetailView() {
 
   if (!observation) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-dvh">
         <p className="text-gray-500">Observation not found</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pb-24 px-4 pt-6">
+    <div className="min-h-dvh px-4 pt-6" style={{ paddingBottom: "var(--content-pb)" }}>
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <motion.div

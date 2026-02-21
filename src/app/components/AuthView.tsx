@@ -31,7 +31,7 @@ export function AuthView() {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen px-6 bg-white">
+    <div className="relative flex flex-col items-center justify-center min-h-dvh px-6 bg-white">
       <TruchetBackground />
       <motion.div
         initial={{ opacity: 0, y: -20 }}
