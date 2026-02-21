@@ -5,6 +5,8 @@ import { ObservationsView } from './components/ObservationsView';
 import { ObservationDetailView } from './components/ObservationDetailView';
 import { PatternsView } from './components/PatternsView';
 import { ReflectView } from './components/ReflectView';
+import { StreamView } from './components/StreamView';
+import { SubscribePage } from './components/SubscribePage';
 import { FeedView } from './components/FeedView';
 
 // Match Vite's base path in both dev and prod
@@ -12,8 +14,9 @@ const basename = '/OBZERV';
 
 export const router = createBrowserRouter(
   [
-    // Public route — no auth required, no nav chrome
+    // Public routes — no auth required
     { path: 'feed', Component: FeedView },
+    { path: 'subscribe', Component: SubscribePage },
 
     // Auth-gated app shell
     {
@@ -25,6 +28,7 @@ export const router = createBrowserRouter(
         { path: 'observation/:id', Component: ObservationDetailView },
         { path: 'patterns', Component: PatternsView },
         { path: 'reflect', Component: ReflectView },
+        { path: 'stream', Component: StreamView },
       ],
     },
   ],

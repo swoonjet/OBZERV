@@ -14,7 +14,8 @@ export function ObservationsView() {
   const [observations, setObservations] = useState<Observation[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showInvite, setShowInvite] = useState(false);
-  const [feedUrl, setFeedUrl] = useState('');
+  const [inviteUrl, setInviteUrl] = useState('');
+  const [myHandle, setMyHandle] = useState('');
 
   useEffect(() => {
     loadObservations();
@@ -28,13 +29,21 @@ export function ObservationsView() {
   const handleInvite = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    const url = `${BASE_URL}feed?u=${encodeURIComponent(user.id)}`
-    setFeedUrl(url)
+    // Look up handle
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('handle')
+      .eq('id', user.id)
+      .maybeSingle()
+    const handle = profile?.handle ?? ''
+    setMyHandle(handle)
+    const url = `${BASE_URL}subscribe?h=${encodeURIComponent(handle)}`
+    setInviteUrl(url)
     setShowInvite(true)
   }
 
   const handleCopyInvite = () => {
-    navigator.clipboard.writeText(feedUrl)
+    navigator.clipboard.writeText(inviteUrl)
     toast.success('Link copied!')
   }
 
@@ -42,9 +51,9 @@ export function ObservationsView() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Follow my OBZERV feed',
-          text: 'I\'ve been keeping a voice journal. You can follow my observations here:',
-          url: feedUrl,
+          title: `Follow @${myHandle} on OBZERV`,
+          text: `Follow my observations on OBZERV — no location data shared.`,
+          url: inviteUrl,
         })
       } catch {
         // cancelled
@@ -186,13 +195,16 @@ export function ObservationsView() {
               <p className="text-xs font-medium tracking-widest text-gray-400 uppercase mb-1">
                 Invite someone
               </p>
-              <p className="text-gray-600 text-sm mb-5 leading-relaxed">
-                Share a link to your feed — anyone with it can read your observations, no account needed.
+              <p className="text-gray-600 text-sm mb-1 leading-relaxed">
+                Share this link. When they open it in the OBZERV app, they'll follow{' '}
+                <span className="font-medium text-gray-800">@{myHandle}</span> and your observations
+                will appear in their Stream. Location is never shared.
               </p>
+              <p className="text-xs text-gray-400 mb-5">They need an OBZERV account to follow you.</p>
 
               {/* URL pill */}
               <div className="bg-gray-50 rounded-xl px-4 py-3 mb-4 flex items-center gap-3">
-                <p className="text-xs text-gray-500 font-mono truncate flex-1">{feedUrl}</p>
+                <p className="text-xs text-gray-500 font-mono truncate flex-1">{inviteUrl}</p>
                 <button
                   onClick={handleCopyInvite}
                   className="text-xs font-medium text-black shrink-0 hover:underline"
