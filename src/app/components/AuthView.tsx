@@ -31,12 +31,16 @@ export function AuthView() {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-dvh px-6 bg-white">
+    <div
+      className="relative flex flex-col items-center min-h-dvh px-6 bg-white"
+      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
       <TruchetBackground />
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 w-full max-w-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+        className="relative z-10 w-full max-w-sm flex-1 flex flex-col justify-center"
       >
         {/* Logo */}
         <div className="text-center mb-10">

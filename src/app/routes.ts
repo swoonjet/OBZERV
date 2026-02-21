@@ -12,6 +12,10 @@ const basename = '/OBZERV';
 
 export const router = createBrowserRouter(
   [
+    // Public route — no auth required, no nav chrome
+    { path: 'feed', Component: FeedView },
+
+    // Auth-gated app shell
     {
       path: '/',
       Component: Root,
@@ -21,7 +25,6 @@ export const router = createBrowserRouter(
         { path: 'observation/:id', Component: ObservationDetailView },
         { path: 'patterns', Component: PatternsView },
         { path: 'reflect', Component: ReflectView },
-        { path: 'feed', Component: FeedView },
       ],
     },
   ],
