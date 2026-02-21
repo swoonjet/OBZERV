@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router';
-import { Mic, List, TrendingUp, LogOut } from 'lucide-react';
+import { Mic, List, TrendingUp, Sparkles, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export function BottomNav() {
@@ -52,12 +52,24 @@ export function BottomNav() {
           <span className="text-xs mt-1">Patterns</span>
         </Link>
 
+        <Link
+          to="/reflect"
+          className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+            isActive('/reflect')
+              ? 'text-black'
+              : 'text-gray-400 hover:text-gray-600'
+          }`}
+        >
+          <Sparkles className="w-6 h-6" />
+          <span className="text-xs mt-1">Reflect</span>
+        </Link>
+
         <button
           onClick={signOut}
           className="flex flex-col items-center justify-center flex-1 h-full transition-colors text-gray-400 hover:text-gray-600"
         >
-          <LogOut className="w-6 h-6" />
-          <span className="text-xs mt-1">Sign Out</span>
+          <LogOut className="w-5 h-5" />
+          <span className="text-xs mt-1">Out</span>
         </button>
       </div>
     </nav>
