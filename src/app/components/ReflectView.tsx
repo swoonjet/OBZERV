@@ -303,10 +303,7 @@ export function ReflectView() {
   const [terrainWidth, setTerrainWidth] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const hasKey = !!import.meta.env.VITE_ANTHROPIC_KEY
-
   const load = useCallback(async () => {
-    if (!hasKey) { setLoadState('no-key'); return }
     setLoadState('loading')
     try {
       const observations = await storage.getObservations()
@@ -327,7 +324,7 @@ export function ReflectView() {
       console.error('reflect error', e)
       setLoadState('error')
     }
-  }, [hasKey])
+  }, [])
 
   useEffect(() => {
     load()

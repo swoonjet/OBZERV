@@ -15,22 +15,19 @@ export interface ReflectAnalysis {
   narrativeSummary: string // 2–3 sentence read of the recent arc
 }
 
-const ANTHROPIC_KEY = import.meta.env.VITE_ANTHROPIC_KEY as string | undefined
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 
-// Call Anthropic API directly from client (anon key, read-only analysis — no user data stored)
+// Route through Supabase Edge Function to avoid CORS issues with direct Anthropic calls
 async function callClaude(prompt: string): Promise<string> {
-  if (!ANTHROPIC_KEY) throw new Error('No Anthropic API key configured')
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/anthropic-proxy`, {
     method: 'POST',
     headers: {
-      'x-api-key': ANTHROPIC_KEY,
-      'anthropic-version': '2023-06-01',
       'content-type': 'application/json',
-      'anthropic-dangerous-allow-browser': 'true',
+      'authorization': `Bearer ${SUPABASE_ANON_KEY}`,
     },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
       messages: [{ role: 'user', content: prompt }],
     }),
@@ -38,7 +35,7 @@ async function callClaude(prompt: string): Promise<string> {
 
   if (!res.ok) {
     const err = await res.text()
-    throw new Error(`Anthropic API error ${res.status}: ${err}`)
+    throw new Error(`Proxy error ${res.status}: ${err}`)
   }
 
   const data = await res.json()
