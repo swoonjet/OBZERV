@@ -122,9 +122,10 @@ export function RecordView() {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-dvh px-6" style={{ paddingBottom: "var(--content-pb)" }}>
+    <div className="relative flex flex-col items-center min-h-dvh px-6" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'var(--content-pb)' }}>
       <TruchetBackground />
-      <div className="relative z-10 w-full max-w-md">
+      {/* Push content to the vertical centre of the *visible* area (below status bar, above nav) */}
+      <div className="relative z-10 w-full max-w-md flex-1 flex flex-col items-center justify-center">
         {/* Logo / Title */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
