@@ -17,6 +17,19 @@
 
     <body>
       <div id="root"></div>
+      <!-- GitHub Pages SPA: restore path that was encoded by 404.html -->
+      <script>
+        (function() {
+          var p = new URLSearchParams(window.location.search).get('p');
+          if (p) {
+            var base = '/OBZERV';
+            window.history.replaceState(
+              null, '',
+              base + decodeURIComponent(p)
+            );
+          }
+        })();
+      </script>
       <script type="module" src="/src/main.tsx"></script>
     </body>
   </html>

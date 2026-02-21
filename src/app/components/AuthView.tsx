@@ -31,17 +31,10 @@ export function AuthView() {
   }
 
   return (
-    <div
-      className="relative flex flex-col items-center min-h-dvh px-6 bg-white"
-      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
-    >
+    // flex-1 so this fills the space Root gives it; justify-center centres in that space
+    <div className="relative flex flex-col items-center flex-1 px-6 bg-white" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <TruchetBackground />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
-        className="relative z-10 w-full max-w-sm flex-1 flex flex-col justify-center"
-      >
+      <div className="relative z-10 w-full max-w-sm flex-1 flex flex-col justify-center">
         {/* Logo */}
         <div className="text-center mb-10">
           <img src={obzervLogo} alt="OBZERV" className="w-28 h-28 mx-auto mb-3" />
@@ -129,7 +122,7 @@ export function AuthView() {
             {mode === 'signin' ? 'Sign up' : 'Sign in'}
           </button>
         </p>
-      </motion.div>
+      </div>
     </div>
   )
 }
